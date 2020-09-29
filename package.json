@@ -1,0 +1,29 @@
+{
+  "name": "@soatok/constant-time",
+  "version": "0.1.0",
+  "description": "Constant-time algorithms in JavaScript",
+  "main": "index.ts",
+  "scripts": {
+    "test": "mocha -r ts-node/register ./tests/*.ts"
+  },
+  "keywords": [
+    "crypto",
+    "constant-time",
+    "cryptography"
+  ],
+  "dependencies": {
+    "tslib": "^2.0.1",
+    "@types/node": "^14.11.2"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.2.12",
+    "@types/mocha": "^8.0.3",
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "mocha": "^8.1.3",
+    "ts-node": "^9.0.0",
+    "typescript": "^4.0.3"
+  },
+  "author": "Soatok Dreamseeker",
+  "license": "ISC"
+}
