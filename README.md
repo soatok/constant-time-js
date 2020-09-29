@@ -6,7 +6,7 @@ Constant-time algorithms written in TypeScript.
 [![Linux Build Status](https://travis-ci.org/soatok/constant-time-js.svg?branch=master)](https://travis-ci.org/soatok/constant-time-js)
 [![npm version](https://img.shields.io/npm/v/constant-time-js.svg)](https://npm.im/constant-time-js)
 
-**Important**: This Github repository is the companion to [Soatok's Guide to Side-Channel Attacks](https://soatok.blog/2020/08/27/soatoks-guide-to-side-channel-attacks/).
+**Important**: This Github repository is the companion to [Soatok's Guide to Side-Channel Attacks](https://soatok.blog/2020/08/27/soatoks-guide-to-side-channel-attacks/). Do not use this in production, especially if you don't have the budget for a cryptography audit.
 
 ![Mind Blowing, right?](https://soatok.files.wordpress.com/2020/08/soatoktelegrams2020-01.png)
 
@@ -50,6 +50,12 @@ Constant-time algorithms written in TypeScript.
 * `trim_zeroes_right(buf)`
   * `buf` must be a `Uint8Array`
   * Returns a `Uint8Array`
+
+## Limitations
+
+### Do not use on 32-bit processes.
+
+32-bit v8 (and, presumably, a lot of other implementations) do things wrong, and this will be variable-time on it.
 
 ## Frequently Asked Questions
 
