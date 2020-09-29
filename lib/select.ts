@@ -1,3 +1,5 @@
+import { int32 } from './int32';
+
 /**
  * If TRUE, return left; else, return right.
  *
@@ -35,4 +37,18 @@ export function select_ints(returnLeft: number, left: number, right: number): nu
      */
     const mask: number = (-(returnLeft & 1)) & 0xfffffffff;
     return right ^ ((left ^ right) & mask);
+}
+
+/**
+ * If TRUE, return left; else, return right.
+ *
+ * @param {number} returnLeft
+ * @param {number} left
+ * @param {number} right
+ * @returns {number}
+ */
+export function select_int32(returnLeft: number, left: int32, right: int32): int32 {
+    return right.xor(left.xor(right).and(
+        int32.fromInt(-(returnLeft & 1))
+    ));
 }

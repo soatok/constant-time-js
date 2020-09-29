@@ -1,3 +1,4 @@
+import { int32 } from './int32';
 import { modulo } from './intdiv';
 import { select_ints } from './select';
 
@@ -19,16 +20,17 @@ export function resize(input: Uint8Array, desired: number): Uint8Array {
     let x: number;
     let y: number;
     let z: number;
+    const desired32: int32 = int32.fromInt(desired);
     for (x = 0; x < input.length; x++) {
         /*
          if (x <= desired) y = 0;
          else              y = 1;
          */
-        y = ((x - desired) >>> 31) & 1;
-
+        y = int32.fromInt(x).sub(desired32).msb();
         z = modulo(x, desired);
-        output[z] = select_ints(y & 1, input[z], output[z]);
+        output[z] = select_ints(y, input[z], output[z]);
     }
+    desired32.wipe();
 
     return output;
 }
