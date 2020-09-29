@@ -4,10 +4,7 @@ Constant-time algorithms written in TypeScript.
 
 [![Support on Patreon](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.herokuapp.com%2Fsoatok&style=flat)](https://patreon.com/soatok)
 [![Linux Build Status](https://travis-ci.org/soatok/constant-time-js.svg?branch=master)](https://travis-ci.org/soatok/constant-time-js)
-[![Latest Stable Version](https://poser.pugx.org/soatok/constant-time-js/v/stable)](https://packagist.org/packages/soatok/constant-time-js)
-[![Latest Unstable Version](https://poser.pugx.org/soatok/constant-time-js/v/unstable)](https://packagist.org/packages/soatok/constant-time-js)
-[![License](https://poser.pugx.org/soatok/constant-time-js/license)](https://packagist.org/packages/soatok/constant-time-js)
-[![Downloads](https://img.shields.io/packagist/dt/soatok/constant-time-js.svg)](https://packagist.org/packages/soatok/constant-time-js)
+[![npm version](https://img.shields.io/npm/v/constant-time-js.svg)](https://npm.im/constant-time-js)
 
 **Important**: This Github repository is the companion to [Soatok's Guide to Side-Channel Attacks](https://soatok.blog/2020/08/27/soatoks-guide-to-side-channel-attacks/).
 
