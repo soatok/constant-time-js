@@ -32,6 +32,7 @@ Constant-time algorithms written in TypeScript.
 * `intdiv(N, D)` - Divide `N` into `D`, discarding remainder.
   * Returns an integer.
 * `modulo(N, D)` - Divide `N` into `D`, return the remainder.
+  * Returns an integer.
 * `resize(buf, size)` - Return a resized `Uint8Array` object (to side-step memory access leakage)
 * `select(x, a, b)` - Read it as a ternary. If `x` is true, returns `a`. Otherwise, returns `b`.
   * `x` must be a `boolean`
@@ -49,3 +50,29 @@ Constant-time algorithms written in TypeScript.
 * `trim_zeroes_right(buf)`
   * `buf` must be a `Uint8Array`
   * Returns a `Uint8Array`
+
+## Frequently Asked Questions
+
+### But Why Though?
+
+![Mwahahahahahaha!](https://soatok.files.wordpress.com/2020/04/soatok_stickerpack-evil-laughter.png)
+
+**For science!**
+
+This is a proof-of-concept library, that will eventually implement
+all of the algorithms described in [the accompanying blog post](https://soatok.blog/2020/08/27/soatoks-guide-to-side-channel-attacks/).
+
+### What's with the blue {fox, wolf}?
+
+My fursona is a [dhole](https://soatok.blog/2020/08/10/all-about-dholes-and-dhole-fursonas/), not a wolf.
+
+### You should remove your fursona from this so my manager might take it seriously.
+
+I don't owe you anything. I don't owe your manager anything.
+
+Besides, if anyone is bigoted against a [predominantly LGBTQIA+ community](https://furscience.com/research-findings/sex-relationships-pornography/5-1-orientation/),
+they're precisely the sort of person whose career I don't want to help.
+
+In sum:
+
+[![I will increase the thing](https://soatok.files.wordpress.com/2020/07/increase-the-thing.png)](https://soatok.blog/2020/07/09/a-word-on-anti-furry-sentiments-in-the-tech-community/)

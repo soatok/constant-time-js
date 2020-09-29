@@ -25,8 +25,7 @@ export function trim_zeroes_right(buf: Uint8Array): Uint8Array {
  * @returns {Uint8Array}
  */
 export function trim_zeroes_left(buf: Uint8Array): Uint8Array {
-    buf.reverse();
-    buf = trim_zeroes_right(buf);
-    buf.reverse();
-    return buf;
+    const ret = buf.slice();
+    ret.reverse();
+    return trim_zeroes_right(ret).reverse();
 }
