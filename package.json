@@ -1,5 +1,5 @@
 {
-  "name": "@soatok/constant-time",
+  "name": "constant-time-js",
   "version": "0.1.0",
   "description": "Constant-time algorithms in JavaScript",
   "main": "index.ts",
