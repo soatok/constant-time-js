@@ -61,8 +61,8 @@ export class int32 {
         return int32_lshift(this, amount);
     }
 
-    negate(): int32 {
-        return int32_negate(this);
+    not(): int32 {
+        return int32_not(this);
     }
 
     or(arg: number|int32): int32 {
@@ -149,7 +149,7 @@ function int32_lshift(a: int32, x: number) {
     return new int32(l & 0xffff, h & 0xffff);
 }
 
-function int32_negate(a: int32): int32 {
+function int32_not(a: int32): int32 {
     let l: number = a.low() ^ 0xffff;
     let h: number = a.high() ^ 0xffff;
     return new int32(l & 0xffff, h & 0xffff);

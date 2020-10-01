@@ -68,9 +68,9 @@ describe('Int32', () => {
             .to.be.equal(0);
     });
 
-    it('negate()', () => {;
+    it('not()', () => {
         const z: int32 = int32.fromInt(0x12345678);
-        expect(z.negate().toHex()).to.be.equal('edcba987');
+        expect(z.not().toHex()).to.be.equal('edcba987');
         expect(z.toHex()).to.be.equal('12345678');
     });
 
