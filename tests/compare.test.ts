@@ -37,5 +37,23 @@ describe('Constant-Time Comparison', () => {
         expect(compare_ints(A, C)).to.be.equal(-1);
         expect(compare_ints(B, C)).to.be.equal(-1);
         expect(compare_ints(C, C)).to.be.equal(0);
+    });
+
+    it('compare_ints() big', () => {
+        const SMOL =    0x12345678;
+        const CHUNGUS = 0x7fffffff;
+        const MAX =     0xffffffff;
+
+        expect(compare_ints(MAX, MAX)).to.be.equal(0);
+        expect(compare_ints(CHUNGUS, MAX)).to.be.equal(-1);
+        expect(compare_ints(SMOL, MAX)).to.be.equal(-1);
+
+        expect(compare_ints(MAX, CHUNGUS)).to.be.equal(1);
+        expect(compare_ints(CHUNGUS, CHUNGUS)).to.be.equal(0);
+        expect(compare_ints(SMOL, CHUNGUS)).to.be.equal(-1);
+
+        expect(compare_ints(MAX, SMOL)).to.be.equal(1);
+        expect(compare_ints(CHUNGUS, SMOL)).to.be.equal(1);
+        expect(compare_ints(SMOL, SMOL)).to.be.equal(0);
     })
 });

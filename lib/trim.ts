@@ -14,10 +14,10 @@ export function trim_zeroes_right(buf: Uint8Array): Uint8Array {
     for (i = buf.length - 1; i >= 0; i--) {
         /* if foundNonZero === 0 && buf[i] !== 0, index := i */
         isNonZero = int32.fromInt(buf[i]).sub(1).rshift(8).and(m);
-        index = (foundNonZero.negate().and(i))
+        index = (foundNonZero.not().and(i))
             .xor(foundNonZero.and(index))
             .toNumber();
-        foundNonZero = foundNonZero.or(isNonZero.negate()).and(m);
+        foundNonZero = foundNonZero.or(isNonZero.not()).and(m);
     }
     foundNonZero.wipe();
     isNonZero.wipe();

@@ -54,6 +54,10 @@ export class int32 {
         return int32_compare(this, arg);
     }
 
+    isZero(): number {
+        return int32_is_zero(this);
+    }
+
     lshift(amount: number): int32 {
         if (amount > 31) {
             return int32.zero();
@@ -61,8 +65,8 @@ export class int32 {
         return int32_lshift(this, amount);
     }
 
-    negate(): int32 {
-        return int32_negate(this);
+    not(): int32 {
+        return int32_not(this);
     }
 
     or(arg: number|int32): int32 {
@@ -138,9 +142,35 @@ function int32_and_number(a: int32, b: number): int32 {
 }
 
 function int32_compare(left, right): int32 {
-    let gt: number = right.sub(left).msb();
-    let eq: number = right.xor(left).sub(1).msb();
+    const diff: int32 = right.sub(left);
+    /*
+    This borrows a trick from Thomas Pornin's CTTK library:
+
+    https://github.com/pornin/CTTK/blob/1d592024398f06c8eda1d325bdbd105ac32d92b3/inc/cttk.h#L552-L581
+
+	> If both x >= 2^31 and y >= 2^31, then we can virtually
+	> subtract 2^31 from both, and we are back to the first
+	> case. Since (y-2^31)-(x-2^31) = y-x, the direct subtraction
+	> is already fine.
+
+	Except (left, right, diff) := (x, y, z), respectively
+    */
+    let gt: number = diff.xor(left.xor(right).and(left.xor(diff))).msb();
+    let eq: number = right.xor(left).isZero();
     return int32.fromInt((gt + gt + eq) - 1);
+}
+
+function int32_is_zero(a: int32): number {
+    /*
+     Bitiwse OR the bits of the limbs together
+     then subtract 1 and grab the most significant bit.
+
+     [0] - 1 >>> 31
+      -> 1
+     [1..0xffff] - 1 >>> 31
+      -> 0
+     */
+    return ((a.low() | a.high()) - 1) >>> 31;
 }
 
 function int32_lshift(a: int32, x: number) {
@@ -149,7 +179,7 @@ function int32_lshift(a: int32, x: number) {
     return new int32(l & 0xffff, h & 0xffff);
 }
 
-function int32_negate(a: int32): int32 {
+function int32_not(a: int32): int32 {
     let l: number = a.low() ^ 0xffff;
     let h: number = a.high() ^ 0xffff;
     return new int32(l & 0xffff, h & 0xffff);
