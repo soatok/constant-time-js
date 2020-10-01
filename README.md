@@ -102,7 +102,6 @@ largely C and sometimes Python, and hopefully soon Rust).
 
 Hold off until v1.0.0 is tagged before you even *think* about relying on it for
 anything. APIs might break until then.
-My fursona is a [dhole](https://soatok.blog/2020/08/10/all-about-dholes-and-dhole-fursonas/), not a wolf.
 
 ### What's with the blue {fox, wolf}?
 
