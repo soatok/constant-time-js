@@ -90,6 +90,16 @@ export function is_nonzero(num: Uint8Array): boolean {
 }
 
 /**
+ * Return the least significant bit (big endian).
+ *
+ * @param {Uint8Array} y
+ * @returns {number} (0 or 1)
+ */
+export function lsb(y: Uint8Array): number {
+    return y[y.length - 1] & 1;
+}
+
+/**
  * Left-shift this big number in-place by 1.
  *
  * @param {Uint8Array} x
@@ -103,17 +113,6 @@ export function lshift1(x: Uint8Array): void {
         carry = (tmp >>> 7) & 1;
     }
 }
-
-/**
- * Return the least significant bit (big endian).
- *
- * @param {Uint8Array} y
- * @returns {number} (0 or 1)
- */
-export function lsb(y: Uint8Array): number {
-    return y[y.length - 1] & 1;
-}
-
 
 /**
  * Calculate the modular inverse (1/x mod m).
