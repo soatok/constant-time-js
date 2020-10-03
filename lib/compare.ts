@@ -1,5 +1,4 @@
 import { int32 } from './int32';
-import {select_int32} from "./select";
 
 export function compare(left: Uint8Array, right: Uint8Array): number {
     if (left.length !== right.length) {
@@ -7,15 +6,14 @@ export function compare(left: Uint8Array, right: Uint8Array): number {
     }
     let gt: number = 0;
     let eq: number = 1;
-    let i: number = left.length;
     let l: int32;
     let r: int32;
-    while (i > 0) {
-        i--;
+    for (let i: number = 0; i < left.length; i++) {
         r = int32.fromInt(right[i]);
         l = int32.fromInt(left[i]);
-        gt |= r.sub(l).msb();
-        eq &= r.xor(l).sub(1).msb();
+        const d: int32 = r.sub(l);
+        gt |= d.xor(l.xor(r).and(l.xor(d))).msb() & eq;
+        eq &= r.xor(l).isZero();
     }
     l.wipe();
     r.wipe();

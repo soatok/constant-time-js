@@ -1,4 +1,5 @@
 export { compare, compare_ints } from './lib/compare';
+export * as bignum from './lib/bignum';
 export { equals, hmac_equals } from './lib/equals';
 export { intdiv, modulo } from './lib/intdiv';
 export { resize } from './lib/resize';
