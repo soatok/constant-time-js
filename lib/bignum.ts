@@ -1,6 +1,6 @@
-import {compare} from "./compare";
-import {equals} from "./equals";
-import {select_alt as select} from "./select";
+import {compare} from './compare';
+import {equals} from './equals';
+import {select_alt as select} from './select';
 
 /**
  * Add two big numbers. Does not support overflow.
