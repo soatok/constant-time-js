@@ -1,5 +1,6 @@
 import {compare} from "./compare";
 import {equals} from "./equals";
+import {select_alt as select} from "./select";
 
 /**
  * Add two big numbers. Does not support overflow.
@@ -38,6 +39,57 @@ export function and(a: Uint8Array, b: Uint8Array): Uint8Array {
 }
 
 /**
+ * Returns the number of trailing 0 bits (least significant, big endian)
+ * in a big number.
+ *
+ * This returns a native bigint type because the number of zero bits might be
+ * >= 2^32 for large data buffers (e.g. 2^30 bytes -> 2^33 bits).
+ *
+ * @param {Uint8Array} a
+ * @returns {bigint}
+ */
+export function count_trailing_zero_bits(a: Uint8Array): bigint {
+    let b: bigint = 0n;
+    let num: bigint = 0n;
+    let found: bigint = 0n;
+    let bit: number = 0;
+    for (let i: number = a.length - 1; i >= 0; i--) {
+        for (let j: number = 0; j < 8; j++) {
+            bit = (a[i] >>> j) & 1; // 1 if non-zero
+            num = ((BigInt(-bit) & b) & ~found) ^ (num & found);
+            found |= BigInt(-bit); // -1 if found, 0 if not
+            b++;
+        }
+    }
+    return num;
+}
+
+/**
+ * Calculate the greatest common denominator of two big numbers.
+ *
+ * @param {Uint8Array} a
+ * @param {Uint8Array} b
+ * @returns {Uint8Array}
+ */
+export function gcd(a: Uint8Array, b: Uint8Array): Uint8Array {
+    return xgcd(a, b)[1];
+}
+
+/**
+ * Is this number anything except zero?
+ *
+ * @param {Uint8Array} num
+ * @returns {boolean}
+ */
+export function is_nonzero(num: Uint8Array): boolean {
+    let d: number = 0;
+    for (let i: number = num.length - 1; i >= 0; i--) {
+        d |= num[i];
+    }
+    return d !== 0;
+}
+
+/**
  * Left-shift this big number in-place by 1.
  *
  * @param {Uint8Array} x
@@ -50,6 +102,46 @@ export function lshift1(x: Uint8Array): void {
         x[i] = (tmp << 1) | carry;
         carry = (tmp >>> 7) & 1;
     }
+}
+
+/**
+ * Return the least significant bit (big endian).
+ *
+ * @param {Uint8Array} y
+ * @returns {number} (0 or 1)
+ */
+export function lsb(y: Uint8Array): number {
+    return y[y.length - 1] & 1;
+}
+
+
+/**
+ * Calculate the modular inverse (1/x mod m).
+ *
+ * @param {Uint8Array} x
+ * @param {Uint8Array} m
+ */
+export function modInverse(x: Uint8Array, m: Uint8Array): Uint8Array {
+    const [a, y] = xgcd(x, m);
+
+    /* if (y != 1) throw */
+    const one: Uint8Array = new Uint8Array(x.length);
+    one[one.length - 1] = 1;
+    if (!equals(one, y)) {
+        throw new Error('inverse does not exist');
+    }
+    /* if (gcd(x, m) == 1), a is the modular inverse */
+    return a;
+}
+
+/**
+ * Return the most significant bit (big endian).
+ *
+ * @param {Uint8Array} x
+ * @returns {number} (0 or 1)
+ */
+export function msb(x: Uint8Array): number {
+    return (x[0] >>> 7) & 1;
 }
 
 /**
@@ -122,6 +214,58 @@ export function rshift1(y: Uint8Array, unsigned?: boolean): void {
 }
 
 /**
+ * Shift left by an arbitrary number of bits.
+ *
+ * @param {Uint8Array} a
+ * @param {bigint} e
+ */
+export function shift_left(a: Uint8Array, e: bigint): Uint8Array {
+    const out = new Uint8Array(a.length);
+    let index: number = a.length - 1 - (Number(e >> 3n) & 0x7fffffff);
+    const s: number = Number(e & 7n);
+    const m: number = (1 << s) - 1;
+    /* index <= i, 0 <= s <= 7, 0 <= m <= 127 */
+    let x: number = 0;
+    let y: number = 0;
+    let tmp: number = 0;
+    let carry: number = 0;
+    for (let i: number = a.length - 1; i >= 0; index--, i--) {
+        x = ~(index >> 31);
+        y = (index & x); // todo: replace with intdiv modulo
+        tmp = (a[i] >>> (8 - s)) & m;
+        out[y] = ((((a[i] << s) & 0xff) | carry) & x) ^ (out[y] & ~x);
+        carry = tmp;
+    }
+    return out;
+}
+
+/**
+ * Shift right by an arbitrary number of bits.
+ *
+ * @param {Uint8Array} a
+ * @param {bigint} e
+ */
+export function shift_right(a: Uint8Array, e: bigint): Uint8Array {
+    const out = new Uint8Array(a.length);
+    let index: number = (Number(e >> 3n) & 0x7fffffff);
+    const s: number = Number(e & 7n);
+    const m: number = ~((1 << s) - 1);
+    /* index <= i, 0 <= s <= 7, 0 <= m <= 255 */
+    let x: number = 0;
+    let y: number = 0;
+    let tmp: number = 0;
+    let carry: number = 0;
+    for (let i: number = 0; i < a.length; i++, index++) {
+        x = ~((a.length - index - 1) >> 31);
+        y = (index & x); // todo: replace with intdiv modulo
+        tmp = (a[i] << (8 - s)) & m;
+        out[y] = ((((a[i] >>> s) & 0xff) | carry) & x) ^ (out[y] & ~x);
+        carry = tmp;
+    }
+    return out;
+}
+
+/**
  * Subtract two big numbers.
  *
  * @param {Uint8Array} a
@@ -158,47 +302,6 @@ export function xor(a: Uint8Array, b: Uint8Array): Uint8Array {
 }
 
 /**
- * Return the least significant bit (big endian).
- *
- * @param {Uint8Array} y
- * @returns {number} (0 or 1)
- */
-export function lsb(y: Uint8Array): number {
-    return y[y.length - 1] & 1;
-}
-
-
-/**
- * Return the most significant bit (big endian).
- *
- * @param {Uint8Array} x
- * @returns {number} (0 or 1)
- */
-export function msb(x: Uint8Array): number {
-    return (x[0] >>> 7) & 1;
-}
-
-/**
- * Returns (choice ? m : n) without branches indexed by secret data.
- *
- * @param {number} choice (0 or 1)
- * @param {Uint8Array} m
- * @param {Uint8Array} n
- * @returns {Uint8Array}
- */
-function select(choice: number, m: Uint8Array, n: Uint8Array): Uint8Array {
-    if (m.length !== n.length) {
-        throw new Error('Both Uint8Arrays must be the same length');
-    }
-    const mask = (-choice) & 0xff;
-    const out = new Uint8Array(m.length);
-    for (let i: number = 0; i < out.length; i++) {
-        out[i] = n[i] ^ ((m[i] ^ n[i]) & mask);
-    }
-    return out;
-}
-
-/**
  * Return the minimum of two native bigints.
  *
  * @param {bigint} a
@@ -211,37 +314,6 @@ function minBigInt(a: bigint, b: bigint): bigint {
     a += d;
     return a;
 }
-
-/**
- * Calculate the modular inverse (1/x mod m).
- *
- * @param {Uint8Array} x
- * @param {Uint8Array} m
- */
-export function modInverse(x: Uint8Array, m: Uint8Array): Uint8Array {
-    const [a, y] = xgcd(x, m);
-
-    /* if (y != 1) throw */
-    const one: Uint8Array = new Uint8Array(x.length);
-    one[one.length - 1] = 1;
-    if (!equals(one, y)) {
-        throw new Error('inverse does not exist');
-    }
-    /* if (gcd(x, m) == 1), a is the modular inverse */
-    return a;
-}
-
-/**
- * Calculate the greatest common denominator of two big numbers.
- *
- * @param {Uint8Array} a
- * @param {Uint8Array} b
- * @returns {Uint8Array}
- */
-export function gcd(a: Uint8Array, b: Uint8Array): Uint8Array {
-    return xgcd(a, b)[1];
-}
-
 
 /**
  * Based on algorithm 14.61 from the Handbook of Applied Cryptography
@@ -311,84 +383,4 @@ function xgcd(x: Uint8Array, y: Uint8Array): Uint8Array[] {
         D = select(swap, sub(D, B), D);
     } while (is_nonzero(u));
     return [C, shift_left(v, g)];
-}
-
-export function shift_left(a: Uint8Array, e: bigint): Uint8Array {
-    const out = new Uint8Array(a.length);
-    let index: number = a.length - 1 - (Number(e >> 3n) & 0x7fffffff);
-    const s: number = Number(e & 7n);
-    const m: number = (1 << s) - 1;
-    /* index <= i, 0 <= s <= 7, 0 <= m <= 127 */
-    let x: number = 0;
-    let y: number = 0;
-    let tmp: number = 0;
-    let carry: number = 0;
-    for (let i: number = a.length - 1; i >= 0; index--, i--) {
-        x = ~(index >> 31);
-        y = (index & x); // todo: replace with intdiv modulo
-        tmp = (a[i] >>> (8 - s)) & m;
-        out[y] = ((((a[i] << s) & 0xff) | carry) & x) ^ (out[y] & ~x);
-        carry = tmp;
-    }
-    return out;
-}
-
-export function shift_right(a: Uint8Array, e: bigint): Uint8Array {
-    const out = new Uint8Array(a.length);
-    let index: number = (Number(e >> 3n) & 0x7fffffff);
-    const s: number = Number(e & 7n);
-    const m: number = ~((1 << s) - 1);
-    /* index <= i, 0 <= s <= 7, 0 <= m <= 255 */
-    let x: number = 0;
-    let y: number = 0;
-    let tmp: number = 0;
-    let carry: number = 0;
-    for (let i: number = 0; i < a.length; i++, index++) {
-        x = ~((a.length - index - 1) >> 31);
-        y = (index & x); // todo: replace with intdiv modulo
-        tmp = (a[i] << (8 - s)) & m;
-        out[y] = ((((a[i] >>> s) & 0xff) | carry) & x) ^ (out[y] & ~x);
-        carry = tmp;
-    }
-    return out;
-}
-
-/**
- * Returns the number of trailing 0 bits (least significant, big endian)
- * in a big number.
- *
- * This returns a native bigint type because the number of zero bits might be
- * >= 2^32 for large data buffers (e.g. 2^30 bytes -> 2^33 bits).
- *
- * @param {Uint8Array} a
- * @returns {bigint}
- */
-export function count_trailing_zero_bits(a: Uint8Array): bigint {
-    let b: bigint = 0n;
-    let num: bigint = 0n;
-    let found: bigint = 0n;
-    let bit: number = 0;
-    for (let i: number = a.length - 1; i >= 0; i--) {
-        for (let j: number = 0; j < 8; j++) {
-            bit = (a[i] >>> j) & 1; // 1 if non-zero
-            num = ((BigInt(-bit) & b) & ~found) ^ (num & found);
-            found |= BigInt(-bit); // -1 if found, 0 if not
-            b++;
-        }
-    }
-    return num;
-}
-
-/**
- * Is this number anything except zero?
- *
- * @param {Uint8Array} num
- * @returns {boolean}
- */
-export function is_nonzero(num: Uint8Array): boolean {
-    let d: number = 0;
-    for (let i: number = num.length - 1; i >= 0; i--) {
-        d |= num[i];
-    }
-    return d !== 0;
 }

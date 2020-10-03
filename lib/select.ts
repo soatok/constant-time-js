@@ -24,6 +24,26 @@ export function select(returnLeft: boolean, left: Uint8Array, right: Uint8Array)
 }
 
 /**
+ * Returns (choice ? m : n) without branches indexed by secret data.
+ *
+ * @param {number} choice (0 or 1)
+ * @param {Uint8Array} m
+ * @param {Uint8Array} n
+ * @returns {Uint8Array}
+ */
+export function select_alt(choice: number, m: Uint8Array, n: Uint8Array): Uint8Array {
+    if (m.length !== n.length) {
+        throw new Error('Both Uint8Arrays must be the same length');
+    }
+    const mask = (-choice) & 0xff;
+    const out = new Uint8Array(m.length);
+    for (let i: number = 0; i < out.length; i++) {
+        out[i] = n[i] ^ ((m[i] ^ n[i]) & mask);
+    }
+    return out;
+}
+
+/**
  * If TRUE, return left; else, return right.
  *
  * @param {number} returnLeft
