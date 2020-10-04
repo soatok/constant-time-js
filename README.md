@@ -117,6 +117,18 @@ exceed 2^32 for an array that is less than 2^32 elements long.
 const c: bigint = bignum.count_trailing_zero_bits(a, b);
 ```
 
+#### bignum.divide()
+
+Calculate `a / b`, discarding the remainder.
+
+```typescript
+/**
+ * @var {Uint8Array} a
+ * @var {Uint8Array} b
+ */
+const c: Uint8Array = bignum.divide(a, b);
+```
+
 #### bignum.gcd()
 
 Calculate the Greatest Common Denominator of two integers.
@@ -166,6 +178,18 @@ lshift1(a);
 // `a` is now double its previous value
 ```
 
+#### bignum.modulo()
+
+Calculate `a mod b`.
+
+```typescript
+/**
+ * @var {Uint8Array} a
+ * @var {Uint8Array} b
+ */
+const c: Uint8Array = bignum.modulo(a, b);
+```
+
 #### bignum.modInverse()
 
 Calculate the modular inverse of two integers.
@@ -183,6 +207,19 @@ try {
 } catch (e) {
     // Handle exception when 1/a is not defined (mod b).
 }
+```
+
+#### bignum.modPow()
+
+Modular exponentiation.
+
+```typescript
+/**
+ * @var {Uint8Array} base
+ * @var {Uint8Array} exp
+ * @var {Uint8Array} mod
+ */
+const out: Uint8Array = bignum.modExp(base, exp, mod);
 ```
 
 #### bignum.msb()
