@@ -1,5 +1,6 @@
 import {compare} from './compare';
 import {equals} from './equals';
+import {modulo} from './intdiv';
 import {select, select_alt} from './select';
 import {trim_zeroes_left} from "./trim";
 
@@ -191,7 +192,7 @@ export function normalize(a: Uint8Array, l: number, unsigned?: boolean): Uint8Ar
              fill = 0x00
          */
         const fill: number = (~(-(j >>> 31))) & 0xff;
-        const index: number = j & fill;
+        const index: number = modulo(j, a.length) & fill;
         /* if j < 0, neg; else, a[j] */
         out[i] = (a[index] & fill) ^ (neg & ~fill);
     }
@@ -294,7 +295,7 @@ export function shift_left(a: Uint8Array, e: bigint): Uint8Array {
     let carry: number = 0;
     for (let i: number = a.length - 1; i >= 0; index--, i--) {
         x = ~(index >> 31);
-        y = (index & x); // todo: replace with intdiv modulo
+        y = (modulo(index, a.length) & x);
         tmp = (a[i] >>> (8 - s)) & m;
         out[y] = ((((a[i] << s) & 0xff) | carry) & x) ^ (out[y] & ~x);
         carry = tmp;
@@ -320,7 +321,7 @@ export function shift_right(a: Uint8Array, e: bigint): Uint8Array {
     let carry: number = 0;
     for (let i: number = 0; i < a.length; i++, index++) {
         x = ~((a.length - index - 1) >> 31);
-        y = (index & x); // todo: replace with intdiv modulo
+        y = (modulo(index, a.length) & x);
         tmp = (a[i] << (8 - s)) & m;
         out[y] = ((((a[i] >>> s) & 0xff) | carry) & x) ^ (out[y] & ~x);
         carry = tmp;
