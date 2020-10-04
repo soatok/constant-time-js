@@ -1,6 +1,7 @@
 import {compare} from './compare';
 import {equals} from './equals';
-import {select_alt as select} from './select';
+import {select, select_alt} from './select';
+import {trim_zeroes_left} from "./trim";
 
 /**
  * Add two big numbers. Does not support overflow.
@@ -162,12 +163,39 @@ export function multiply(a: Uint8Array, b: Uint8Array, ops?: number): Uint8Array
     }
 
     while (ops > 0) {
-        z = select(lsb(y), add(z, x), z);
+        z = select_alt(lsb(y), add(z, x), z);
         lshift1(x);
         rshift1(y);
         ops--;
     }
     return z;
+}
+
+/**
+ * Normalize this output to the desired length.
+ *
+ * @param {Uint8Array} a
+ * @param {number} l
+ * @param {boolean} unsigned
+ */
+export function normalize(a: Uint8Array, l: number, unsigned?: boolean): Uint8Array {
+    const out = new Uint8Array(l);
+    const neg: number = unsigned
+        ? 0x00
+        : ((-msb(a)) & 0xff);
+    let j: number = a.length - 1;
+    for (let i: number = l - 1; i >= 0; i--, j--) {
+        /* if j >= 0:
+             fill = 0xff
+           else:
+             fill = 0x00
+         */
+        const fill: number = (~(-(j >>> 31))) & 0xff;
+        const index: number = j & fill;
+        /* if j < 0, neg; else, a[j] */
+        out[i] = (a[index] & fill) ^ (neg & ~fill);
+    }
+    return out;
 }
 
 /**
@@ -186,6 +214,42 @@ export function or(a: Uint8Array, b: Uint8Array): Uint8Array {
         c[i] = a[i] | b[i];
     }
     return c;
+}
+
+/**
+ * Calculate a to the nth power.
+ *
+ * Based off algorithm 14.76 from the Handbook of Applied Cryptography
+ *
+ * @param {Uint8Array} a
+ * @param {Uint8Array} n
+ * @returns {Uint8Array}
+ */
+export function pow(a: Uint8Array, n: Uint8Array): Uint8Array {
+    const one: Uint8Array = new Uint8Array(a.length);
+    one[one.length - 1] = 1;
+
+    let A: Uint8Array = one.slice();
+    let S: Uint8Array = a.slice();
+    let e: Uint8Array = n.slice();
+    let Aprime: Uint8Array;
+    let Sprime: Uint8Array;
+    do {
+        Aprime = multiply(A, S);
+        A = select_alt(
+            lsb(e),
+            Aprime,
+            normalize(A, Aprime.length)
+        );
+        rshift1(e, true);
+        Sprime = multiply(S, S);
+        S = select(
+            is_nonzero(e),
+            Sprime,
+            normalize(S, Sprime.length)
+        );
+    } while (is_nonzero(e));
+    return trim_zeroes_left(A);
 }
 
 /**
@@ -347,17 +411,17 @@ function xgcd(x: Uint8Array, y: Uint8Array): Uint8Array[] {
         for (bits = count_trailing_zero_bits(u); bits > 0n; bits--) {
             rshift1(u);
             swap = (~lsb(A) & ~lsb(B)) & 1;
-            A = select(swap, A, add(A, y));
+            A = select_alt(swap, A, add(A, y));
             rshift1(A);
-            B = select(swap, B, sub(B, x));
+            B = select_alt(swap, B, sub(B, x));
             rshift1(B);
         }
         for (bits = count_trailing_zero_bits(v); bits > 0n; bits--) {
             rshift1(v);
             swap = (~lsb(C) & ~lsb(D)) & 1;
-            C = select(swap, C, add(C, y));
+            C = select_alt(swap, C, add(C, y));
             rshift1(C);
-            D = select(swap, D, sub(D, x));
+            D = select_alt(swap, D, sub(D, x));
             rshift1(D);
         }
 
@@ -371,15 +435,15 @@ function xgcd(x: Uint8Array, y: Uint8Array): Uint8Array[] {
 
         // if (u >= v):
         swap = (1 - (compare(u, v) >>> 31));
-        u = select(swap, sub(u, v), u);
-        A = select(swap, sub(A, C), A);
-        B = select(swap, sub(B, D), B);
+        u = select_alt(swap, sub(u, v), u);
+        A = select_alt(swap, sub(A, C), A);
+        B = select_alt(swap, sub(B, D), B);
 
         swap = 1 - swap;
         // else:
-        v = select(swap, sub(v, u), v);
-        C = select(swap, sub(C, A), C);
-        D = select(swap, sub(D, B), D);
+        v = select_alt(swap, sub(v, u), v);
+        C = select_alt(swap, sub(C, A), C);
+        D = select_alt(swap, sub(D, B), D);
     } while (is_nonzero(u));
     return [C, shift_left(v, g)];
 }

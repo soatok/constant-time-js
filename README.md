@@ -210,6 +210,23 @@ The output size will be larger than the inputs.
 const z: Uint8Array = bignum.multiply(x, y);
 ```
 
+#### bignum.normalize()
+
+Resize an Uint8Array to the desired length.
+
+The default behavior is to treat the number as signed (thereby filling in the
+left with 0xFF bytes if the most significant bit of the input Uint8Array is set).
+
+Pass `true` to the optional third argument to always zero-fill this padding value.
+
+```typescript
+/** 
+ * @var {Uint8Array} a
+ * @var {number} len
+ */
+const c: Uint8Array = bignum.normalize(a, len);
+```
+
 #### bignum.or()
 
 Returns `a | b` (bitwise OR).
@@ -220,6 +237,19 @@ Returns `a | b` (bitwise OR).
  * @var {Uint8Array} b
  */
 const c: Uint8Array = bignum.or(a, b);
+```
+
+
+#### bignum.pow()
+
+Exponentiation.
+
+```typescript
+/** 
+ * @var {Uint8Array} a
+ * @var {Uint8Array} n
+ */
+const c: Uint8Array = bignum.pow(a, n);
 ```
 
 #### bignum.rshift1()

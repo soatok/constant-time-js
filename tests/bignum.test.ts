@@ -6,7 +6,9 @@ import {
     lshift1,
     modInverse,
     multiply,
+    normalize,
     or,
+    pow,
     rshift1,
     shift_left,
     shift_right,
@@ -16,6 +18,7 @@ import {
 import { expect } from 'chai';
 import 'mocha';
 import { uint8array_to_hex } from './test-helper';
+import {trim_zeroes_left} from "../lib/trim";
 
 describe('Constant-Time BigNumber Arithmetic', () => {
     it('add()', () => {
@@ -129,10 +132,31 @@ describe('Constant-Time BigNumber Arithmetic', () => {
     });
 
     it('or()', () => {
+        const a = new Uint8Array([0x00, 0x31, 0x41]);
+        expect(uint8array_to_hex(normalize(a, 8)))
+            .to.be.equal('0000000000003141');
+        expect(uint8array_to_hex(normalize(a, 3)))
+            .to.be.equal('003141');
+        expect(uint8array_to_hex(normalize(a, 2)))
+            .to.be.equal('3141');
+
+        const b = new Uint8Array([0xff, 0xff, 0x3e]);
+        expect(uint8array_to_hex(normalize(b, 8)))
+            .to.be.equal('ffffffffffffff3e');
+    });
+
+    it('or()', () => {
         const a = new Uint8Array([0x31, 0x41]);
         const b = new Uint8Array([0x59, 0x65]);
         expect(uint8array_to_hex(or(a, b)))
             .to.be.equal('7965');
+    });
+
+    it('pow()', () => {
+        const a = new Uint8Array([0x00, 0x00, 0x00, 0x07]);
+        const n = new Uint8Array([0x00, 0x00, 0x00, 0x03]);
+        expect(uint8array_to_hex(pow(a, n)))
+            .to.be.equal('0157');
     });
 
     it('rshift1()', () => {
