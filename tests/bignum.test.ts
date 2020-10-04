@@ -6,6 +6,7 @@ import {
     gcd,
     lshift1,
     modInverse,
+    modPow,
     modulo,
     multiply,
     normalize,
@@ -170,6 +171,91 @@ describe('Constant-Time BigNumber Arithmetic', () => {
         expect(
             () => modInverse(new Uint8Array([127]), new Uint8Array([127]))
         ).to.throw('inverse does not exist');
+    });
+
+    it('modPow()', () => {
+        const base = new Uint8Array([0x00, 0x04]);     // 4
+        const exponent = new Uint8Array([0x00, 0x0d]); // 13
+        const modulus = new Uint8Array([0x01, 0xf1]); // 497
+        expect('01bd').to.be.equal(
+            uint8array_to_hex(modPow(base, exponent, modulus))
+        );
+    });
+
+    it('modPow() - Fermat - 3 ^ 65535 mod 65537', () => {
+        const prime = new Uint8Array([0x00, 0x01, 0x00, 0x01]); // 65537
+        const pMinus2 = new Uint8Array([0x00, 0x00, 0xff, 0xff]); // 65535
+        const three = new Uint8Array([0x00, 0x00, 0x00, 0x03]);
+        expect(uint8array_to_hex(modPow(three, pMinus2, prime)))
+            .to.be.equal('00005556');
+    });
+    it('modPow() - Fermat - 5 ^ 65535 mod 65537', () => {
+        const prime = new Uint8Array([0x00, 0x01, 0x00, 0x01]); // 65537
+        const pMinus2 = new Uint8Array([0x00, 0x00, 0xff, 0xff]); // 65535
+        const five = new Uint8Array([0x00, 0x00, 0x00, 0x05]);
+
+        expect(uint8array_to_hex(modPow(five, pMinus2, prime)))
+            .to.be.equal('00006667');
+    });
+
+    it('modPow() - Fermat - 32767 ^ 65535 mod 65537', () => {
+        const prime = new Uint8Array([0x00, 0x01, 0x00, 0x01]); // 65537
+        const pMinus2 = new Uint8Array([0x00, 0x00, 0xff, 0xff]); // 65535
+        const half = new Uint8Array([0x00, 0x00, 0x7f, 0xff]);
+
+        expect(uint8array_to_hex(modPow(half, pMinus2, prime)))
+            .to.be.equal('00005555');
+    });
+    it('modPow() - Fermat - 32768 ^ 65535 mod 65537', () => {
+        const prime = new Uint8Array([0x00, 0x01, 0x00, 0x01]); // 65537
+        const pMinus2 = new Uint8Array([0x00, 0x00, 0xff, 0xff]); // 65535
+        const halfUpper = new Uint8Array([0x00, 0x00, 0x80, 0x00]);
+        expect(uint8array_to_hex(modPow(halfUpper, pMinus2, prime)))
+            .to.be.equal('0000ffff');
+    });
+
+    it('modulo()', () => {
+        expect('00000000001e').to.be.equal(
+            uint8array_to_hex(
+                modulo(
+                    new Uint8Array([0, 0, 0, 0, 4, 0]),
+                    new Uint8Array([0, 0, 0, 0, 1, 241])
+                )
+            )
+        );
+        expect('00000001').to.be.equal(
+            uint8array_to_hex(
+                modulo(
+                    new Uint8Array([0xFF, 0xFF, 0xFF, 0xFF]),
+                    new Uint8Array([0x00, 0x00, 0x00, 0x02])
+                )
+            )
+        );
+        expect('00000003').to.be.equal(
+            uint8array_to_hex(
+                modulo(
+                    new Uint8Array([0xFF, 0xFF, 0xFF, 0xFF]),
+                    new Uint8Array([0x00, 0x00, 0x00, 0x04])
+                )
+            )
+        );
+        expect('0000fff9').to.be.equal(
+            uint8array_to_hex(
+                modulo(
+                    new Uint8Array([0x04, 0x08, 0x04, 0x00]),
+                    new Uint8Array([0x00, 0x01, 0x00, 0x01])
+                )
+            )
+        );
+        expect('00000000001e').to.be.equal(
+            uint8array_to_hex(
+                modulo(
+                    new Uint8Array([0, 0, 0, 0, 4, 0]),
+                    new Uint8Array([0, 0, 0, 0, 1, 241])
+                )
+            )
+        );
+
     });
 
     it('multiply()', () => {

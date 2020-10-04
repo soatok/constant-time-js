@@ -139,6 +139,51 @@ export function modulo(a: Uint8Array, b: Uint8Array): Uint8Array {
 }
 
 /**
+ * Calculate a^x (mod m).
+ *
+ * @param {Uint8Array} a
+ * @param {Uint8Array} x
+ * @param {Uint8Array} m
+ */
+export function modPow(a: Uint8Array, x: Uint8Array, m: Uint8Array): Uint8Array {
+    const zero: Uint8Array = new Uint8Array(m.length + 1);
+    const one: Uint8Array = zero.slice();
+    one[one.length - 1] = 1;
+    const two: Uint8Array = zero.slice();
+    two[two.length - 1] = 2;
+
+    let length: number = zero.length << 1;
+    const mod: Uint8Array = normalize(m, length);
+    let result: Uint8Array = normalize(one, length);
+    let base: Uint8Array = normalize(a, length);
+    let e: Uint8Array = normalize(x, length);
+    let p: Uint8Array;
+
+    while (is_nonzero(e)) {
+        /*
+        if (exponent & 1) equals 1:
+           result = (result * base) mod modulus
+         */
+        p = multiply(result, base);
+        p = normalize(modulo(p, mod), length, true);
+        result = select_alt(lsb(e), p, result);
+
+        /*
+        exponent := exponent >> 1
+         */
+        rshift1(e, true);
+
+        /*
+        base = (base * base) mod modulus
+         */
+        p = multiply(base, base);
+        p = normalize(modulo(p, mod), length, true);
+        base = p;
+    }
+    return normalize(result, zero.length - 1);
+}
+
+/**
  * Calculate the modular inverse (1/x mod m).
  *
  * @param {Uint8Array} x
@@ -364,7 +409,7 @@ export function sub(a: Uint8Array, b: Uint8Array): Uint8Array {
     for (let i: number = out.length - 1; i >= 0; i--) {
         c += a[i] - b[i];
         out[i] = c & 0xff;
-        c >>>= 8;
+        c >>= 8;
     }
     return out;
 }
@@ -482,10 +527,11 @@ function division(num: Uint8Array, denom: Uint8Array): Uint8Array[] {
     if (!is_nonzero(denom)) {
         throw new Error('Division by zero');
     }
-    const zero: Uint8Array = new Uint8Array(num.length);
-    let bits: number = (num.length << 3) - 1;
-    let N: Uint8Array = num.slice();
-    let D: Uint8Array = denom.slice();
+    const length: number = Math.max(num.length, denom.length);
+    const zero: Uint8Array = new Uint8Array(length);
+    let bits: number = (length << 3) - 1;
+    let N: Uint8Array = normalize(num, length, true);
+    let D: Uint8Array = normalize(denom, length, true);
     let Q: Uint8Array = zero.slice();
     let R: Uint8Array = zero.slice();
     let Qprime: Uint8Array;
