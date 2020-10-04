@@ -1,8 +1,8 @@
 import {compare} from './compare';
 import {equals} from './equals';
-import {modulo} from './intdiv';
-import {select, select_alt} from './select';
-import {trim_zeroes_left} from "./trim";
+import {modulo as mod} from './intdiv';
+import {select, select_alt, select_int32} from './select';
+import {trim_zeroes_left} from './trim';
 
 /**
  * Add two big numbers. Does not support overflow.
@@ -67,6 +67,17 @@ export function count_trailing_zero_bits(a: Uint8Array): bigint {
 }
 
 /**
+ * Divide a / b. Returns only the quotient (no remainder).
+ *
+ * @param {Uint8Array} a
+ * @param {Uint8Array} b
+ * @returns {Uint8Array}
+ */
+export function divide(a: Uint8Array, b: Uint8Array): Uint8Array {
+    return division(a, b)[0];
+}
+
+/**
  * Calculate the greatest common denominator of two big numbers.
  *
  * @param {Uint8Array} a
@@ -114,6 +125,17 @@ export function lshift1(x: Uint8Array): void {
         x[i] = (tmp << 1) | carry;
         carry = (tmp >>> 7) & 1;
     }
+}
+
+/**
+ * Divide a / b. Returns the remainder.
+ *
+ * @param {Uint8Array} a
+ * @param {Uint8Array} b
+ * @returns {Uint8Array}
+ */
+export function modulo(a: Uint8Array, b: Uint8Array): Uint8Array {
+    return division(a, b)[1];
 }
 
 /**
@@ -192,7 +214,7 @@ export function normalize(a: Uint8Array, l: number, unsigned?: boolean): Uint8Ar
              fill = 0x00
          */
         const fill: number = (~(-(j >>> 31))) & 0xff;
-        const index: number = modulo(j, a.length) & fill;
+        const index: number = mod(j, a.length) & fill;
         /* if j < 0, neg; else, a[j] */
         out[i] = (a[index] & fill) ^ (neg & ~fill);
     }
@@ -295,7 +317,7 @@ export function shift_left(a: Uint8Array, e: bigint): Uint8Array {
     let carry: number = 0;
     for (let i: number = a.length - 1; i >= 0; index--, i--) {
         x = ~(index >> 31);
-        y = (modulo(index, a.length) & x);
+        y = (mod(index, a.length) & x);
         tmp = (a[i] >>> (8 - s)) & m;
         out[y] = ((((a[i] << s) & 0xff) | carry) & x) ^ (out[y] & ~x);
         carry = tmp;
@@ -321,7 +343,7 @@ export function shift_right(a: Uint8Array, e: bigint): Uint8Array {
     let carry: number = 0;
     for (let i: number = 0; i < a.length; i++, index++) {
         x = ~((a.length - index - 1) >> 31);
-        y = (modulo(index, a.length) & x);
+        y = (mod(index, a.length) & x);
         tmp = (a[i] << (8 - s)) & m;
         out[y] = ((((a[i] >>> s) & 0xff) | carry) & x) ^ (out[y] & ~x);
         carry = tmp;
@@ -447,4 +469,59 @@ function xgcd(x: Uint8Array, y: Uint8Array): Uint8Array[] {
         D = select_alt(swap, sub(D, B), D);
     } while (is_nonzero(u));
     return [C, shift_left(v, g)];
+}
+
+/**
+ * Big number division.
+ *
+ * @param {Uint8Array} num
+ * @param {Uint8Array} denom
+ * @returns {Uint8Array}
+ */
+function division(num: Uint8Array, denom: Uint8Array): Uint8Array[] {
+    if (!is_nonzero(denom)) {
+        throw new Error('Division by zero');
+    }
+    const zero: Uint8Array = new Uint8Array(num.length);
+    let bits: number = (num.length << 3) - 1;
+    let N: Uint8Array = num.slice();
+    let D: Uint8Array = denom.slice();
+    let Q: Uint8Array = zero.slice();
+    let R: Uint8Array = zero.slice();
+    let Qprime: Uint8Array;
+    let Rprime: Uint8Array;
+    let compared: number;
+    let swap: number;
+    let byte: number;
+    let b: number;
+    let i: number;
+    for (i = 0; i <= bits; i++) {
+        byte = i >>> 3;
+        b = ((bits - i) & 7);
+        lshift1(R);
+
+        // R(0) := N(i)
+        R[R.length - 1] |= (N[byte] >>> b) & 1;
+
+        /*
+          -- if R > D  then compared ==  1, swap = 1
+          -- if R == D then compared ==  0, swap = 1
+          -- if R < D  then compared == -1, swap = 0
+         */
+        compared = compare(R, D);
+        swap = (1 - (compared >>> 31));
+
+        /*
+          Rprime := R - D
+          Qprime := Q
+          Qprime(i) := 1
+         */
+        Rprime = sub(R, D);
+        Qprime = Q.slice();
+        Qprime[byte] |= (1 << b);
+
+        R = select_alt(swap, Rprime, R);
+        Q = select_alt(swap, Qprime, Q);
+    }
+    return [Q, R];
 }

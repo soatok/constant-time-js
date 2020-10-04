@@ -2,9 +2,11 @@ import {
     add,
     and,
     count_trailing_zero_bits,
+    divide,
     gcd,
     lshift1,
     modInverse,
+    modulo,
     multiply,
     normalize,
     or,
@@ -19,6 +21,7 @@ import { expect } from 'chai';
 import 'mocha';
 import { uint8array_to_hex } from './test-helper';
 import {trim_zeroes_left} from "../lib/trim";
+import {intdiv} from "../lib/intdiv";
 
 describe('Constant-Time BigNumber Arithmetic', () => {
     it('add()', () => {
@@ -60,6 +63,61 @@ describe('Constant-Time BigNumber Arithmetic', () => {
         a[3] = 0x00;
         count = Number(count_trailing_zero_bits(a));
         expect(count).to.be.equal(8);
+    });
+
+    it('divide() and modulo()', () => {
+        const testCases = [
+            {N: 3628800, D: 11, Q: 329890, R: 10},
+            {N: 3628800, D: 10, Q: 362880, R: 0},
+            {N: 3628800, D: 9, Q: 403200, R: 0},
+            {N: 3628800, D: 13, Q: 279138, R: 6},
+        ];
+        for (const test of testCases) {
+            const testN = new Uint8Array([
+                (test.N >>> 24) & 0xff,
+                (test.N >>> 16) & 0xff,
+                (test.N >>> 8) & 0xff,
+                test.N & 0xff,
+            ]);
+            const testD = new Uint8Array([
+                (test.D >>> 24) & 0xff,
+                (test.D >>> 16) & 0xff,
+                (test.D >>> 8) & 0xff,
+                test.D & 0xff,
+            ]);
+            const testQ = new Uint8Array([
+                (test.Q >>> 24) & 0xff,
+                (test.Q >>> 16) & 0xff,
+                (test.Q >>> 8) & 0xff,
+                test.Q & 0xff,
+            ]);
+            const testR = new Uint8Array([
+                (test.R >>> 24) & 0xff,
+                (test.R >>> 16) & 0xff,
+                (test.R >>> 8) & 0xff,
+                test.R & 0xff,
+            ]);
+            expect(uint8array_to_hex(testQ))
+                .to.be.equal(uint8array_to_hex(divide(testN, testD)));
+            expect(uint8array_to_hex(testR))
+                .to.be.equal(uint8array_to_hex(modulo(testN, testD)));
+        }
+
+        const a = new Uint8Array([0x0e])
+        const b = new Uint8Array([0x07]);
+        expect('02').to.be.equal(
+            uint8array_to_hex(divide(a, b))
+        );
+
+        const c = new Uint8Array([0x00, 0x00, 0xff, 0xff])
+        const d = new Uint8Array([0x00, 0x00, 0x00, 0xff]);
+        expect('00000101').to.be.equal(
+            uint8array_to_hex(divide(c, d))
+        );
+        const e = new Uint8Array([0x00, 0x00, 0x01, 0x01]);
+        expect('000000ff').to.be.equal(
+            uint8array_to_hex(divide(c, e))
+        );
     });
 
     it('gcd()', () => {
