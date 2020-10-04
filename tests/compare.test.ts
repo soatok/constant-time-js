@@ -19,6 +19,13 @@ describe('Constant-Time Comparison', () => {
         expect(compare(A, C)).to.be.equal(-1);
         expect(compare(B, C)).to.be.equal(-1);
         expect(compare(C, C)).to.be.equal(0);
+
+        const D = new Uint8Array([0x00, 0x00, 0x00, 0x03]);
+        const E = new Uint8Array([0x00, 0x01, 0x00, 0x01]);
+        expect(compare(D, E)).to.be.equal(-1);
+        expect(compare(D, D)).to.be.equal(0);
+        expect(compare(E, E)).to.be.equal(0);
+        expect(compare(E, D)).to.be.equal(1);
     });
 
     it('compare_ints()', () => {
