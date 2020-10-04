@@ -219,7 +219,7 @@ Modular exponentiation.
  * @var {Uint8Array} exp
  * @var {Uint8Array} mod
  */
-const out: Uint8Array = bignum.modExp(base, exp, mod);
+const out: Uint8Array = bignum.modPow(base, exp, mod);
 ```
 
 #### bignum.msb()
