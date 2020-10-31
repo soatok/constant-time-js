@@ -5,6 +5,7 @@ import * as crypto from 'crypto';
  *
  * @param {Uint8Array} left
  * @param {Uint8Array} right
+ * @returns {boolean}
  */
 export function equals(left: Uint8Array, right: Uint8Array): boolean {
     if (left.length !== right.length) {
@@ -23,6 +24,7 @@ export function equals(left: Uint8Array, right: Uint8Array): boolean {
  *
  * @param {Uint8Array} left
  * @param {Uint8Array} right
+ * @returns {boolean}
  */
 export function hmac_equals(left: Uint8Array, right: Uint8Array): boolean {
     return equals(

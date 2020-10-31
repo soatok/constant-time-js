@@ -5,34 +5,67 @@ export class int32 {
         this.limbs = new Uint16Array([low, high]);
     }
 
+    /**
+     * Returns an int32 with value 0
+     *
+     * @returns {int32}
+     */
     static zero(): int32 {
         return new int32(0, 0);
     }
 
+    /**
+     * Returns an int32 with value 1
+     *
+     * @returns {int32}
+     */
     static one(): int32 {
         return new int32(1, 0);
     }
 
+    /**
+     * Returns an int32 with the value of {int}
+     *
+     * @returns {int32}
+     */
     static fromInt(int: number): int32 {
         return new int32(int & 0xffff, int >>> 16);
     }
 
+    /**
+     * @returns {number}
+     */
     low() {
         return this.limbs[0];
     }
 
+    /**
+     * @returns {number}
+     */
     high() {
         return this.limbs[1];
     }
 
+    /**
+     * @returns {number}
+     */
     lsb() {
         return this.limbs[0] & 1;
     }
 
+    /**
+     * @returns {number}
+     */
     msb() {
         return (this.limbs[1] >>> 15) & 1;
     }
 
+    /**
+     * Returns the sum of {this} and {arg}.
+     *
+     * @param {number|int32} arg
+     * @returns {number}
+     */
     add(arg: number|int32): int32 {
         if (arg instanceof int32) {
             return int32_add_int32(this, arg);
@@ -40,6 +73,12 @@ export class int32 {
         return int32_add_number(this, arg);
     }
 
+    /**
+     * Returns the result of {this & arg}.
+     *
+     * @param {number|int32} arg
+     * @returns {number}
+     */
     and(arg: number|int32): int32 {
         if (arg instanceof int32) {
             return int32_and_int32(this, arg);
@@ -47,6 +86,14 @@ export class int32 {
         return int32_and_number(this, arg);
     }
 
+    /**
+     * Returns -1 if {this < arg}
+     * Returns 0 if {this == arg}
+     * Returns 1 if {this > arg}
+     *
+     * @param {number|int32} arg
+     * @returns {number}
+     */
     compare(arg: number|int32): int32 {
         if (typeof arg === 'number') {
             arg = int32.fromInt(arg);
@@ -54,10 +101,21 @@ export class int32 {
         return int32_compare(this, arg);
     }
 
+    /**
+     * Is this number zero?
+     *
+     * @returns {number} 1 if true, 0 if false
+     */
     isZero(): number {
         return int32_is_zero(this);
     }
 
+    /**
+     * Return {this} left-shifted by {amount}.
+     *
+     * @param {number} amount
+     * @returns {number}
+     */
     lshift(amount: number): int32 {
         if (amount > 31) {
             return int32.zero();
@@ -65,10 +123,21 @@ export class int32 {
         return int32_lshift(this, amount);
     }
 
+    /**
+     * Returns a bitwise NOT of {this}
+     *
+     * @returns {number}
+     */
     not(): int32 {
         return int32_not(this);
     }
 
+    /**
+     * Returns the result of {this | arg}.
+     *
+     * @param {number|int32} arg
+     * @returns {number}
+     */
     or(arg: number|int32): int32 {
         if (arg instanceof int32) {
             return int32_or_int32(this, arg);
@@ -76,6 +145,12 @@ export class int32 {
         return int32_or_number(this, arg);
     }
 
+    /**
+     * Return {this} right-shifted by {amount}.
+     *
+     * @param {number} amount
+     * @returns {int32}
+     */
     rshift(amount: number): int32 {
         if (amount > 31) {
             return int32.zero();
@@ -83,6 +158,12 @@ export class int32 {
         return int32_rshift(this, amount);
     }
 
+    /**
+     * Returns {this - arg}.
+     *
+     * @param {number|int32} arg
+     * @returns {number}
+     */
     sub(arg: number|int32): int32 {
         if (arg instanceof int32) {
             return int32_sub_int32(this, arg);
@@ -90,6 +171,12 @@ export class int32 {
         return int32_sub_number(this, arg);
     }
 
+    /**
+     * Returns {this ^ arg}
+     *
+     * @param {number|int32} arg
+     * @returns {number}
+     */
     xor(arg: number|int32): int32 {
         if (arg instanceof int32) {
             return int32_xor_int32(this, arg);
@@ -97,6 +184,11 @@ export class int32 {
         return int32_xor_number(this, arg);
     }
 
+    /**
+     * Returns the hexadecimal representation of this integer.
+     *
+     * @returns {string}
+     */
     toHex(): string {
         const l: string = (this.low() & 0xffff)
             .toString(16)
@@ -107,10 +199,20 @@ export class int32 {
         return h.concat(l);
     }
 
+    /**
+     * Convert to a JavaScript Number.
+     *
+     * @returns {number}
+     */
     toNumber(): number {
         return (this.low() | (this.high() << 16));
     }
 
+    /**
+     * MUTATES the obejct!
+     *
+     * Set both limbs to 0 in-place.
+     */
     wipe(): void {
         this.limbs[0] ^= this.limbs[0];
         this.limbs[1] ^= this.limbs[1];

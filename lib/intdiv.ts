@@ -1,10 +1,24 @@
 import { int32 } from './int32';
 import { select_int32 } from './select';
 
+/**
+ * Returns {num / denom} rounded down.
+ *
+ * @param {number} numerator
+ * @param {number} denominator
+ * @returns {number}
+ */
 export function intdiv(numerator: number, denominator: number): number {
     return divide(numerator, denominator)[0];
 }
 
+/**
+ * Returns {num % denom}.
+ *
+ * @param {number} numerator
+ * @param {number} denominator
+ * @returns {number}
+ */
 export function modulo(numerator: number, denominator: number): number {
     return divide(numerator, denominator)[1];
 }

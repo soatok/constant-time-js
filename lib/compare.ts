@@ -1,5 +1,12 @@
 import { int32 } from './int32';
 
+/**
+ * Compare {left} with {right}.
+ *
+ * @param {Uint8Array} left
+ * @param {Uint8Array} right
+ * @returns {number} -1 if left < right, 0 if left == right, 1 if left > right
+ */
 export function compare(left: Uint8Array, right: Uint8Array): number {
     if (left.length !== right.length) {
         throw new Error('Both arrays must be of equal length');
@@ -20,6 +27,13 @@ export function compare(left: Uint8Array, right: Uint8Array): number {
     return (gt + gt + eq) - 1;
 }
 
+/**
+ * Compare {left} with {right}
+ *
+ * @param {number} left
+ * @param {number} right
+ * @returns {number} -1 if left < right, 0 if left == right, 1 if left > right
+ */
 export function compare_ints(left: number, right: number): number {
     /*
     let gt: number = (right - left) >>> 31;
