@@ -13,8 +13,8 @@ export function compare(left: Uint8Array, right: Uint8Array): number {
     }
     let gt: number = 0;
     let eq: number = 1;
-    let l: int32;
-    let r: int32;
+    let l: int32 = int32.zero();
+    let r: int32 = int32.zero();
     for (let i: number = 0; i < left.length; i++) {
         r = int32.fromInt(right[i]);
         l = int32.fromInt(left[i]);

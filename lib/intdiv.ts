@@ -35,7 +35,7 @@ function divide(num: number, denom: number): number[] {
     let Qprime: int32 = int32.zero();
     let Rprime: int32 = int32.zero();
     let i: number;
-    let compared: int32;
+    let compared: int32 = int32.zero();
     let swap: number;
     for (i = 0; i <= bits; i++) {
         // R := R << 1
