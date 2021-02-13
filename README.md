@@ -2,7 +2,7 @@
 
 Constant-time algorithms written in TypeScript.
 
-[![Support me on Patreon](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.vercel.app%2Fapi%3Fusername%3Dsoatok%26type%3Dpatrons&style=for-the-badge)](https://patreon.com/soatok)
+[![Support me on Patreon](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.vercel.app%2Fapi%3Fusername%3Dsoatok%26type%3Dpatrons&style=for-the-badge)](https://patreon.com/soatok)  
 [![Linux Build Status](https://travis-ci.org/soatok/constant-time-js.svg?branch=master)](https://travis-ci.org/soatok/constant-time-js)
 [![npm version](https://img.shields.io/npm/v/constant-time-js.svg)](https://npm.im/constant-time-js)
 
@@ -10,6 +10,30 @@ Constant-time algorithms written in TypeScript.
 Do not use this in production, especially if you don't have the budget for a cryptography audit.
 
 ![Mind Blowing, right?](https://soatok.files.wordpress.com/2020/08/soatoktelegrams2020-01.png)
+
+## Installing and Usage
+
+Simply add `constant-time-js` to your dependencies section. One way to do this is with `npm`:
+
+```terminal
+npm install --save constant-time-js
+```
+
+Next, you can import the modules you need.
+
+For JavaScript users:
+
+```js
+const { compare, bignum } = require('constant-time-js');
+```
+
+Tor TypeScript users:
+
+```typescript
+import { compare, bignum } from 'constant-time-js';
+```
+
+Please refer to the documentation below for what each function/class does.
 
 ## Documentation
 
