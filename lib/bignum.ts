@@ -1,7 +1,7 @@
-import {compare, compare_alt} from './compare';
+import {compare_alt} from './compare';
 import {equals} from './equals';
 import {modulo as mod} from './intdiv';
-import {select, select_alt, select_int32} from './select';
+import {select, select_alt} from './select';
 import {trim_zeroes_left} from './trim';
 
 /**
