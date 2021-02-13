@@ -31,6 +31,18 @@ export class int32 {
     static fromInt(int: number): int32 {
         return new int32(int & 0xffff, int >>> 16);
     }
+    /**
+     * Returns an int32 with the value of {int}
+     *
+     * @param {number} flag
+     * @returns {int32}
+     */
+    static fromFlag(flag: number): int32 {
+        const tmp: Int32Array = new Int32Array(1);
+        tmp[0] = flag;
+        tmp[0] *= -1;
+        return new int32(tmp[0] & 0xffff, tmp[0] >>> 16);
+    }
 
     /**
      * @returns {number}
@@ -200,6 +212,20 @@ export class int32 {
     }
 
     /**
+     * Subtract 1, return a new int32
+     *
+     * @returns {int32}
+     */
+    decrement(): int32 {
+        const out: int32 = new int32(this.low(), this.high());
+        const carry: Uint32Array = new Uint32Array(1);
+        carry[0] = out.limbs[0] - 1;
+        out.limbs[0] = carry[0] & 0xffff;
+        out.limbs[1] = out.limbs[1] + (carry[0] >>> 16);
+        return out;
+    }
+
+    /**
      * Convert to a JavaScript Number.
      *
      * @returns {number}
@@ -259,7 +285,7 @@ function int32_compare(left, right): int32 {
     */
     let gt: number = diff.xor(left.xor(right).and(left.xor(diff))).msb();
     let eq: number = right.xor(left).isZero();
-    return int32.fromInt((gt + gt + eq) - 1);
+    return int32.fromInt((gt + gt + eq)).decrement();
 }
 
 function int32_is_zero(a: int32): number {
@@ -272,7 +298,10 @@ function int32_is_zero(a: int32): number {
      [1..0xffff] - 1 >>> 31
       -> 0
      */
-    return ((a.low() | a.high()) - 1) >>> 31;
+    const tmp = new Uint32Array(1);
+    tmp[0] = (a.low() | a.high());
+    tmp[0]--;
+    return tmp[0] >>> 31;
 }
 
 function int32_lshift(a: int32, x: number) {
