@@ -28,6 +28,36 @@ export function compare(left: Uint8Array, right: Uint8Array): number {
 }
 
 /**
+ * Compare {left} with {right}. Avoids the Number type.
+ *
+ * @param {Uint8Array} left
+ * @param {Uint8Array} right
+ * @returns {Uint32Array} -1 if left < right, 0 if left == right, 1 if left > right
+ */
+export function compare_alt(left: Uint8Array, right: Uint8Array): Uint32Array {
+    const ret: Uint32Array = new Uint32Array(1);
+    if (left.length !== right.length) {
+        throw new Error('Both arrays must be of equal length');
+    }
+    let gt: number = 0;
+    let eq: number = 1;
+    let l: int32;
+    let r: int32;
+    for (let i: number = 0; i < left.length; i++) {
+        r = int32.fromInt(right[i]);
+        l = int32.fromInt(left[i]);
+        const d: int32 = r.sub(l);
+        gt |= d.xor(l.xor(r).and(l.xor(d))).msb() & eq;
+        eq &= r.xor(l).isZero();
+    }
+    l.wipe();
+    r.wipe();
+    ret[0] = (gt + gt + eq);
+    ret[0]--;
+    return ret;
+}
+
+/**
  * Compare {left} with {right}
  *
  * @param {number} left
@@ -59,4 +89,25 @@ export function compare_ints(left: number, right: number): number {
     L.wipe();
     R.wipe();
     return (gt + gt + eq) - 1;
+}
+
+/**
+ * Compare {left} with {right}. Avoids the Number type.
+ *
+ * @param {number} left
+ * @param {number} right
+ * @returns {Uint32Array} -1 if left < right, 0 if left == right, 1 if left > right
+ */
+export function compare_ints_alt(left: number, right: number): Uint32Array {
+    const ret: Uint32Array = new Uint32Array(1);
+    const R: int32 = int32.fromInt(right);
+    const L: int32 = int32.fromInt(left);
+    const diff: int32 = R.sub(L);
+    const gt: number = diff.xor(L.xor(R).and(L.xor(diff))).msb();
+    const eq: number = R.xor(L).isZero();
+    L.wipe();
+    R.wipe();
+    ret[0] = (gt + gt + eq);
+    ret[0]--;
+    return ret;
 }

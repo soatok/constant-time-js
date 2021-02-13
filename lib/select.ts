@@ -69,6 +69,6 @@ export function select_ints(returnLeft: number, left: number, right: number): nu
  */
 export function select_int32(returnLeft: number, left: int32, right: int32): int32 {
     return right.xor(left.xor(right).and(
-        int32.fromInt(-(returnLeft & 1))
+        int32.fromFlag(returnLeft & 1)
     ));
 }

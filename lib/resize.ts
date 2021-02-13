@@ -28,7 +28,7 @@ export function resize(input: Uint8Array, desired: number): Uint8Array {
          */
         y = int32.fromInt(x).sub(desired32).msb();
         z = modulo(x, desired);
-        output[z] = select_ints(y, input[x], output[z]);
+        output[z] = select_ints(y|0, input[x], output[z]);
     }
     desired32.wipe();
 

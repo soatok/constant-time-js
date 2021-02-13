@@ -1,4 +1,4 @@
-import {compare} from './compare';
+import {compare, compare_alt} from './compare';
 import {equals} from './equals';
 import {modulo as mod} from './intdiv';
 import {select, select_alt, select_int32} from './select';
@@ -252,13 +252,16 @@ export function normalize(a: Uint8Array, l: number, unsigned?: boolean): Uint8Ar
         ? 0x00
         : ((-msb(a)) & 0xff);
     let j: number = a.length - 1;
+    const tmp: Int32Array = new Int32Array(1);
     for (let i: number = l - 1; i >= 0; i--, j--) {
         /* if j >= 0:
              fill = 0xff
            else:
              fill = 0x00
          */
-        const fill: number = (~(-(j >>> 31))) & 0xff;
+        tmp[0] = j >>> 31;
+        tmp[0] *= -1;
+        const fill: number = ~tmp[0] & 0xff;
         const index: number = mod(j, a.length) & fill;
         /* if j < 0, neg; else, a[j] */
         out[i] = (a[index] & fill) ^ (neg & ~fill);
@@ -405,11 +408,11 @@ export function shift_right(a: Uint8Array, e: bigint): Uint8Array {
  */
 export function sub(a: Uint8Array, b: Uint8Array): Uint8Array {
     const out: Uint8Array = new Uint8Array(Math.max(a.length, b.length));
-    let c: number = 0;
+    const c: Int16Array = new Int16Array(1);
     for (let i: number = out.length - 1; i >= 0; i--) {
-        c += a[i] - b[i];
-        out[i] = c & 0xff;
-        c >>= 8;
+        c[0] += a[i] - b[i];
+        out[i] = c[0] & 0xff;
+        c[0] >>= 8;
     }
     return out;
 }
@@ -502,7 +505,7 @@ function xgcd(x: Uint8Array, y: Uint8Array): Uint8Array[] {
          */
 
         // if (u >= v):
-        swap = (1 - (compare(u, v) >>> 31));
+        swap = (1 - (compare_alt(u, v)[0] >>> 31));
         u = select_alt(swap, sub(u, v), u);
         A = select_alt(swap, sub(A, C), A);
         B = select_alt(swap, sub(B, D), B);
@@ -536,7 +539,7 @@ function division(num: Uint8Array, denom: Uint8Array): Uint8Array[] {
     let R: Uint8Array = zero.slice();
     let Qprime: Uint8Array;
     let Rprime: Uint8Array;
-    let compared: number;
+    let compared: Uint32Array;
     let swap: number;
     let byte: number;
     let b: number;
@@ -554,8 +557,8 @@ function division(num: Uint8Array, denom: Uint8Array): Uint8Array[] {
           -- if R == D then compared ==  0, swap = 1
           -- if R < D  then compared == -1, swap = 0
          */
-        compared = compare(R, D);
-        swap = (1 - (compared >>> 31));
+        compared = compare_alt(R, D);
+        swap = (1 - (compared[0] >>> 31));
 
         /*
           Rprime := R - D
