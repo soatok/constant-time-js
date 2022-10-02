@@ -2,8 +2,7 @@
 
 Constant-time algorithms written in TypeScript.
 
-[![Support me on Patreon](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.vercel.app%2Fapi%3Fusername%3Dsoatok%26type%3Dpatrons&style=for-the-badge)](https://patreon.com/soatok)  
-[![Linux Build Status](https://travis-ci.org/soatok/constant-time-js.svg?branch=master)](https://travis-ci.org/soatok/constant-time-js)
+[![Build Status](https://github.com/soatok/constant-time-js/actions/workflows/ci.yml/badge.svg)](https://github.com/soatok/soatok/constant-time-js/actions)
 [![npm version](https://img.shields.io/npm/v/constant-time-js.svg)](https://npm.im/constant-time-js)
 
 **Important**: This Github repository is the companion to [Soatok's Guide to Side-Channel Attacks](https://soatok.blog/2020/08/27/soatoks-guide-to-side-channel-attacks/).
