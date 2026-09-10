@@ -3,6 +3,7 @@
     "allowSyntheticDefaultImports": true,
     "lib": ["ES2020"],
     "target": "ES2020",
+    "module": "ESNext",
     "baseUrl": ".",
     "paths": {
       "*": ["*", "generated/*"]
