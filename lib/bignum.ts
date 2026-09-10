@@ -95,11 +95,25 @@ export function gcd(a: Uint8Array, b: Uint8Array): Uint8Array {
  * @returns {boolean}
  */
 export function is_nonzero(num: Uint8Array): boolean {
+    return is_nonzero_flag(num) === 1;
+}
+
+/**
+ * Return 1 if this number is nonzero, or 0 otherwise.
+ *
+ * This numeric form is used as input to the selection functions so that a
+ * secret-derived boolean is never passed through V8's ToBoolean machinery.
+ *
+ * @param {Uint8Array} num
+ * @returns {number}
+ */
+function is_nonzero_flag(num: Uint8Array): number {
     let d: number = 0;
     for (let i: number = num.length - 1; i >= 0; i--) {
         d |= num[i];
     }
-    return d !== 0;
+    // d is in [0, 255], so this maps zero to 0 and every other value to 1.
+    return (d + 0xff) >>> 8;
 }
 
 /**
@@ -315,7 +329,7 @@ export function pow(a: Uint8Array, n: Uint8Array): Uint8Array {
         rshift1(e, true);
         Sprime = multiply(S, S);
         S = select(
-            is_nonzero(e),
+            is_nonzero_flag(e),
             Sprime,
             normalize(S, Sprime.length)
         );

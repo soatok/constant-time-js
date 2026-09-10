@@ -66,16 +66,16 @@ This is just a quick outline of what each function does.
   * [Explanation](https://soatok.blog/2020/08/27/soatoks-guide-to-side-channel-attacks/#integer-division)
   * Returns an integer.
 * `resize(buf, size)` - Return a resized `Uint8Array` object (to side-step memory access leakage)
-* `select(x, a, b)` - Read it as a ternary. If `x` is true, returns `a`. Otherwise, returns `b`.
+* `select(x, a, b)` - Read it as a ternary. If `x` is `1`, returns `a`. If it is `0`, returns `b`.
   * [Explanation](https://soatok.blog/2020/08/27/soatoks-guide-to-side-channel-attacks/#conditional-select)
-  * `x` must be a `boolean`
+  * `x` must be the number `0` or `1`
   * `a` must be a `Uint8Array`
   * `b` must be a `Uint8Array`
   * Throws an `Error` if `a.length !== b.length`
-* `select_ints(x, a, b)` - Read it as a ternary. If `x` is even, returns `a`. Otherwise, returns `b`. 
+* `select_ints(x, a, b)` - Read it as a ternary. If `x` is `1`, returns `a`. If it is `0`, returns `b`.
   (You should pass `1` or `0` for `x`).
   * [Explanation](https://soatok.blog/2020/08/27/soatoks-guide-to-side-channel-attacks/#conditional-select)
-  * `x` must be a `boolean`
+  * `x` must be the number `0` or `1`
   * `a` must be a `number`
   * `b` must be a `number`
 * `trim_zeroes_left(buf)`
