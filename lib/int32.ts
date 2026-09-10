@@ -269,7 +269,7 @@ function int32_and_number(a: int32, b: number): int32 {
     return new int32(l & 0xffff, h & 0xffff);
 }
 
-function int32_compare(left, right): int32 {
+function int32_compare(left: int32, right: int32): int32 {
     const diff: int32 = right.sub(left);
     /*
     This borrows a trick from Thomas Pornin's CTTK library:

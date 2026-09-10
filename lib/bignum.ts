@@ -235,7 +235,7 @@ export function msb(x: Uint8Array): number {
  * @returns {Uint8Array}
  */
 export function multiply(a: Uint8Array, b: Uint8Array, ops?: number): Uint8Array {
-    let z = new Uint8Array(a.length + b.length);
+    let z: Uint8Array = new Uint8Array(a.length + b.length);
     let x = new Uint8Array(z.length);
     let y = new Uint8Array(z.length);
     x.set(a, z.length - a.length);
