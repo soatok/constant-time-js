@@ -1,21 +1,24 @@
 import { int32 } from './int32';
 
 /**
- * If TRUE, return left; else, return right.
+ * If choice is 1, return left; if it is 0, return right.
  *
- * @param {boolean} returnLeft
+ * @param {number} choice (0 or 1)
  * @param {Uint8Array} left
  * @param {Uint8Array} right
  * @returns {Uint8Array}
  */
-export function select(returnLeft: boolean, left: Uint8Array, right: Uint8Array): Uint8Array {
+export function select(choice: number, left: Uint8Array, right: Uint8Array): Uint8Array {
     if (left.length !== right.length) {
         throw new Error('select() expects two Uint8Array objects of equal length');
     }
     /*
-     If returnLeft, mask = 0xFF; else, mask = 0x00;
+     If choice is 1, mask = 0xFF; else, mask = 0x00.
+
+     Keep this as subtraction from positive zero. Unary negation produces -0
+     for a zero choice, which V8 represents differently from the Smi value -1.
      */
-    const mask: number = (-!!returnLeft) & 0xff;
+    const mask: number = (0 - (choice & 1)) & 0xff;
     const out: Uint8Array = new Uint8Array(left.length);
     for (let i: number = 0; i < left.length; i++) {
         out[i] = right[i] ^ ((left[i] ^ right[i]) & mask);
@@ -35,7 +38,8 @@ export function select_alt(choice: number, m: Uint8Array, n: Uint8Array): Uint8A
     if (m.length !== n.length) {
         throw new Error('Both Uint8Arrays must be the same length');
     }
-    const mask = (-choice) & 0xff;
+    // See select(): subtraction from positive zero avoids materializing -0.
+    const mask = (0 - (choice & 1)) & 0xff;
     const out = new Uint8Array(m.length);
     for (let i: number = 0; i < out.length; i++) {
         out[i] = n[i] ^ ((m[i] ^ n[i]) & mask);
@@ -55,7 +59,8 @@ export function select_ints(returnLeft: number, left: number, right: number): nu
     /*
      If returnLeft, mask = 0xFFFFFFFF; else, mask = 0x00000000;
      */
-    const mask: number = (-(returnLeft & 1)) & 0xfffffffff;
+    // See select(): subtraction from positive zero avoids materializing -0.
+    const mask: number = 0 - (returnLeft & 1);
     return right ^ ((left ^ right) & mask);
 }
 
